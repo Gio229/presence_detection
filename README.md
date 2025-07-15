@@ -40,3 +40,8 @@ presence_detection/
 ├── Makefile
 └── README.md
 ```
+
+---
+
+## How it work ?
+A message is publishe on the kafka broker for each state change. Wether personne are detected or not. When personne is detected, message is published at defined interval of time
