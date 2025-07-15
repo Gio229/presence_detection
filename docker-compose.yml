@@ -1,0 +1,86 @@
+services:
+  # =====================================
+  # detector:
+  #   build: .
+  #   container_name: detector
+  #   image: detector-image
+  #   restart: always
+  #   depends_on:
+  #     - kafka
+  #   networks:
+  #     - detector-network
+  #   devices:
+  #     - /dev/video0:/dev/video0
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #   volumes:
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  # =====================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.8.0
+    hostname: zookeeper
+    container_name: zookeeper
+    ports:
+      - "22181:2181"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:2181"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - detector-network
+  #==========================================
+  kafka:
+    image: confluentinc/cp-kafka:7.8.0
+    hostname: broker
+    container_name: broker
+    depends_on:
+      - zookeeper
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+      - "9101:9101"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9092"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092"
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+      KAFKA_JMX_HOSTNAME: localhost
+      KAFKA_CREATE_TOPICS: "class_detection_stream:1:1"
+    networks:
+      - detector-network
+  #==========================================
+  kafdrop:
+    image: obsidiandynamics/kafdrop:4.1.0
+    container_name: kafka-ui
+    # restart: always
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000"]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+    environment:
+      KAFKA_BROKERCONNECT: kafka:29092
+    depends_on:
+      - kafka
+    networks:
+      - detector-network
+###############################################
+networks:
+  detector-network:
+    driver: bridge

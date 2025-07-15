@@ -1,2 +1,8 @@
 .venv
 venv
+runs
+yolo*
+*.jpg
+*.png
+note.txt
+src/__pycache__
