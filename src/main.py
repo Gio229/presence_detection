@@ -3,7 +3,7 @@ import math
 import time
 from ultralytics import YOLO
 from utils import publish_presence
-from config import MESSAGE_INTERVAL_SECONDS
+from config import MESSAGE_INTERVAL_SECONDS, YOLO_CLASS_NAMES
 
 model = YOLO('yolo-Weights/yolov8n.pt')
 
@@ -11,17 +11,6 @@ cam = cv2.VideoCapture(0)
 cam.set(3, 640)
 cam.set(4, 480)
 
-classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
-              "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
-              "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
-              "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard", "sports ball", "kite", "baseball bat",
-              "baseball glove", "skateboard", "surfboard", "tennis racket", "bottle", "wine glass", "cup",
-              "fork", "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange", "broccoli",
-              "carrot", "hot dog", "pizza", "donut", "cake", "chair", "sofa", "pottedplant", "bed",
-              "diningtable", "toilet", "tvmonitor", "laptop", "mouse", "remote", "keyboard", "cell phone",
-              "microwave", "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase", "scissors",
-              "teddy bear", "hair drier", "toothbrush"
-              ]
 
 last_presence = False
 last_publish_time = 0
@@ -47,9 +36,9 @@ while True:
             print("Confidence =>", confidence)
 
             cls = int(box.cls[0])
-            print("Class name =>", classNames[cls])
+            print("Class name =>", YOLO_CLASS_NAMES[cls])
 
-            if classNames[cls] == "person":
+            if YOLO_CLASS_NAMES[cls] == "person":
                 people_count += 1
 
             org = [x1, y1]
@@ -58,7 +47,7 @@ while True:
             color = (255, 0, 0)
             thickness = 2
 
-            cv2.putText(img, classNames[cls], org,
+            cv2.putText(img, YOLO_CLASS_NAMES[cls], org,
                         font, fontScale, color, thickness)
 
     cv2.imshow('Webcam', img)
