@@ -5,7 +5,7 @@ from ultralytics import YOLO
 from utils import publish_presence
 from config import MESSAGE_INTERVAL_SECONDS, YOLO_CLASS_NAMES
 
-model = YOLO('yolo-Weights/yolov8n.pt')
+model = YOLO('yolo-Weights/yolov10x.pt')
 
 cam = cv2.VideoCapture(0)
 cam.set(3, 640)
